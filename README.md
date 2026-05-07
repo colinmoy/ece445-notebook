@@ -20,6 +20,7 @@ Set up the initial breadboard hardware to mock sensor inputs and feedback mechan
 ### Record
 * Because the I2C sensors (VL53L0X and ICM-42670-P) and feedback components (ERM motor, buzzer) have not yet arrived, I designed a mocked hardware environment to test our firmware logic.
 * Wired tactile push buttons to the ESP32 GPIO pins to simulate the ToF and IMU threshold triggers (simulating a "bad posture" event).
+
  ![Breadboard setup with tactile buttons simulating ToF and IMU sensors](images/IMG_1866.jpg)
 * Wired standard LEDs with current-limiting resistors to serve as visual stand-ins for the progressive feedback system.
 * The custom power subsystem is not yet built, so the entire breadboard assembly is being powered directly via a USB-C cable connected to the ESP32 development board.
@@ -56,6 +57,7 @@ Integrate the physical VL53L0X Time-of-Flight sensor on the breadboard and devel
 
 ### Record
 * The physical VL53L0X breakout board arrived. Wired it to the ESP32 and utilized the XSHUT pin (GPIO 2) to manually reset the sensor's boot state.
+
 ![Breadboard prototype integrated with physical VL53L0X Time-of-Flight sensor and feedback components](images/IMG_1880.jpg)
 * Wrote custom `read_reg16()` and `write_reg()` I2C wrapper functions. 
 * Developed `vl53l0x_simple_init()` to verify the device ID (0xEE) and extract the required NVM stop variable from register 0x91. 
@@ -83,6 +85,7 @@ Migrate firmware to the new ESP32-S3 custom PCB and implement IMU pitch math.
 
 ### Record
 * My groupmates completed soldering the custom ESP32-S3 PCB. I updated the ESP-IDF hardware definitions in the firmware to match the new schematic: I2C SCL is now on GPIO 13, SDA on GPIO 12, and the vibration motor moved to GPIO 48.
+
 ![KiCad Schematic for custom ESP32-S3 PCB](images/image_ed9dd3.png)
 ![KiCad PCB Layout](images/image_ed9d95.jpg)
 * Wrote the I2C drivers to initialize the IMU (ICM-42670-P) and implemented the trigonometric pitch calculation: `pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180.0 / M_PI;`.
@@ -99,6 +102,7 @@ Present the Mock Demo and debug physical hardware integration issues.
 * Presented the Mock Demo to the TA. At this stage, we only had the custom PCB; none of the feedback components (motor, buzzer, LEDs) were physically connected yet. 
 * **Critical Hardware Bug:** During testing, we discovered that the VL53L0X ToF sensor was fried during the PCB soldering process. It is no longer returning valid distance data.
 * **Pivot Strategy:** Instead of attempting to desolder and replace the tiny surface-mount sensor on the main PCB, we decided to mount a secondary protoboard carrying intact breakout boards for the sensors, which we will wire back to the main PCB.
+
 ![Secondary protoboard assembly with ToF and IMU breakout boards wired to the main PCB](images/image_ebd73b.jpg)
 
 ---
@@ -123,6 +127,7 @@ Design the initial 3D unibody enclosure for the headband.
 ### Record
 * Modeled the first iteration (V1) of the 3D unibody enclosure in CAD. 
 * Designed the internal layout based on the original PCB dimensions, including a small window for the ToF sensor and a centered mounting point for the elastic headband strap.
+
 ![V1 CAD enclosure featuring the initial small ToF sensor window](images/image.jpg)
 * Exported the STL files and sent them to the 3D printer for overnight fabrication.
 
@@ -149,6 +154,7 @@ Iterate and redesign the 3D enclosure (CAD V2) to accommodate the hardware pivot
 * Redesigned the enclosure (V2) to expand the internal cavity, specifically adding depth to allow for the stacked protoboard and the 3.7V LiPo battery.
 * Repositioned the external port alignments for the USB-C charging port and the buzzer acoustic grill. 
 * Significantly expanded the ToF sensor window to ensure the laser had an unobstructed field of view despite the bulky breakout board mounting. Sent V2 to the printer.
+
 ![V2 CAD enclosure with expanded internal cavity and enlarged ToF sensor window for the protoboard stack](images/Part Studio 1.jpg)
 
 ---
@@ -171,6 +177,7 @@ Finalize system assembly and present the Final Demo.
 
 ### Record
 * Assembled the main PCB, the secondary sensor protoboard, the battery, and all feedback components into the V2 3D-printed enclosure.
+
 ![Final assembled Screentime Habit Correction Headband in the V2 3D-printed enclosure](images/photo1.jpg)
 * Verified that the onboard calibration button successfully resets the posture baseline when worn on the head, and confirmed that both independent state machines trigger the progressive PWM motor correctly.
 * Successfully presented the Final Demo. The headband accurately monitored posture and distance simultaneously without dropping the local Wi-Fi connection.
