@@ -20,6 +20,7 @@ Set up the initial breadboard hardware to mock sensor inputs and feedback mechan
 ### Record
 * Because the I2C sensors (VL53L0X and ICM-42670-P) and feedback components (ERM motor, buzzer) have not yet arrived, I designed a mocked hardware environment to test our firmware logic.
 * Wired tactile push buttons to the ESP32 GPIO pins to simulate the ToF and IMU threshold triggers (simulating a "bad posture" event).
+ ![Breadboard setup with tactile buttons simulating ToF and IMU sensors](IMG_1866.jpg)
 * Wired standard LEDs with current-limiting resistors to serve as visual stand-ins for the progressive feedback system.
 * The custom power subsystem is not yet built, so the entire breadboard assembly is being powered directly via a USB-C cable connected to the ESP32 development board.
 
@@ -55,6 +56,7 @@ Integrate the physical VL53L0X Time-of-Flight sensor on the breadboard and devel
 
 ### Record
 * The physical VL53L0X breakout board arrived. Wired it to the ESP32 and utilized the XSHUT pin (GPIO 2) to manually reset the sensor's boot state.
+![Breadboard prototype integrated with physical VL53L0X Time-of-Flight sensor and feedback components](IMG_1880.jpg)
 * Wrote custom `read_reg16()` and `write_reg()` I2C wrapper functions. 
 * Developed `vl53l0x_simple_init()` to verify the device ID (0xEE) and extract the required NVM stop variable from register 0x91. 
 * **Debugging Note:** The sensor occasionally returned erratic 0mm readings due to complete IR absorption. Implemented software clamping: if `distance_mm > 2000` or `== 0`, it is forcefully set to a safe default of `1200` to prevent false posture alarms.
@@ -81,6 +83,8 @@ Migrate firmware to the new ESP32-S3 custom PCB and implement IMU pitch math.
 
 ### Record
 * My groupmates completed soldering the custom ESP32-S3 PCB. I updated the ESP-IDF hardware definitions in the firmware to match the new schematic: I2C SCL is now on GPIO 13, SDA on GPIO 12, and the vibration motor moved to GPIO 48.
+![KiCad Schematic for custom ESP32-S3 PCB](image_ed9dd3.png)
+![KiCad PCB Layout](image_ed9d95.jpg)
 * Wrote the I2C drivers to initialize the IMU (ICM-42670-P) and implemented the trigonometric pitch calculation: `pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180.0 / M_PI;`.
 * **Hardware Note:** My groupmates successfully implemented the hardware fix for the VL53L0X lock-up issue we saw at the Progress Demo, wiring the XSHUT pin to allow hard resets.
 
