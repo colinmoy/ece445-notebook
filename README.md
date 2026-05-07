@@ -155,7 +155,7 @@ Iterate and redesign the 3D enclosure (CAD V2) to accommodate the hardware pivot
 * Repositioned the external port alignments for the USB-C charging port and the buzzer acoustic grill. 
 * Significantly expanded the ToF sensor window to ensure the laser had an unobstructed field of view despite the bulky breakout board mounting. Sent V2 to the printer.
 
-![V2 CAD enclosure with expanded internal cavity and enlarged ToF sensor window for the protoboard stack](images/Part Studio 1.jpg)
+![V2 CAD enclosure with expanded internal cavity and enlarged ToF sensor window for the protoboard stack](images/Part%20Studio%201.jpg)
 
 ---
 
