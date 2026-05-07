@@ -21,7 +21,7 @@ Set up the initial breadboard hardware to mock sensor inputs and feedback mechan
 * Because the I2C sensors (VL53L0X and ICM-42670-P) and feedback components (ERM motor, buzzer) have not yet arrived, I designed a mocked hardware environment to test our firmware logic.
 * Wired tactile push buttons to the ESP32 GPIO pins to simulate the ToF and IMU threshold triggers (simulating a "bad posture" event).
 
- ![Breadboard setup with tactile buttons simulating ToF and IMU sensors](images/IMG_1866.jpg)
+![Breadboard setup with tactile buttons simulating ToF and IMU sensors](images/IMG_1866.jpg)
 * Wired standard LEDs with current-limiting resistors to serve as visual stand-ins for the progressive feedback system.
 * The custom power subsystem is not yet built, so the entire breadboard assembly is being powered directly via a USB-C cable connected to the ESP32 development board.
 
