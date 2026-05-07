@@ -11,6 +11,7 @@ Research wireless communication protocols (BLE vs. Wi-Fi) for the ESP32 and init
 * **Design Decision:** Proposing a pivot to establishing a local Wi-Fi Access Point (AP) and an HTTP server on the ESP32 instead of BLE. This will allow the React Native app to request data using standard JSON `fetch()` calls, entirely bypassing the Expo native-code limitations.
 
 ---
+
 ## Date: 2026-03-04
 
 ### Objective
@@ -70,5 +71,100 @@ Finalize the dynamic PWM state machine and present the Progress Demo.
 * Verified that if the 3-second window expires, the system triggers the HTTP JSON payload via the `newSessionReady` flag.
 * **Demo Results & Debugging Note:** The Progress Demo was unsuccessful. During the live presentation, the VL53L0X sensor locked up and continuously output a single, frozen distance value, completely halting the state machine's ability to track movement. 
 * **Hypothesis & Next Steps:** I suspect the breadboard wiring caused a transient voltage drop that crashed the sensor's internal state, or the I2C bus locked up. Moving forward, I need to implement an automatic hardware reset in the main loop. I plan to use the sensor's XSHUT pin to physically power-cycle the VL53L0X if it becomes unresponsive.
+
+---
+
+## Date: 2026-04-15
+
+### Objective
+Migrate firmware to the new ESP32-S3 custom PCB and implement IMU pitch math.
+
+### Record
+* My groupmates completed soldering the custom ESP32-S3 PCB. I updated the ESP-IDF hardware definitions in the firmware to match the new schematic: I2C SCL is now on GPIO 13, SDA on GPIO 12, and the vibration motor moved to GPIO 48.
+* Wrote the I2C drivers to initialize the IMU (ICM-42670-P) and implemented the trigonometric pitch calculation: `pitch = atan2(-ax, sqrt(ay * ay + az * az)) * 180.0 / M_PI;`.
+* **Hardware Note:** My groupmates successfully implemented the hardware fix for the VL53L0X lock-up issue we saw at the Progress Demo, wiring the XSHUT pin to allow hard resets.
+
+---
+
+## Date: 2026-04-22
+
+### Objective
+Present the Mock Demo and debug physical hardware integration issues.
+
+### Record
+* Presented the Mock Demo to the TA. At this stage, we only had the custom PCB; none of the feedback components (motor, buzzer, LEDs) were physically connected yet. 
+* **Critical Hardware Bug:** During testing, we discovered that the VL53L0X ToF sensor was fried during the PCB soldering process. It is no longer returning valid distance data.
+* **Pivot Strategy:** Instead of attempting to desolder and replace the tiny surface-mount sensor on the main PCB, we decided to mount a secondary protoboard carrying intact breakout boards for the sensors, which we will wire back to the main PCB.
+
+---
+
+## Date: 2026-04-23
+
+### Objective
+Re-architect the firmware state machine and map the onboard calibration button.
+
+### Record
+* Split the warning logic into two independent trackers: `Distance State Machine` and `Posture State Machine`. Refactored the HTTP server to `/distance` and `/posture` so the app can poll them independently.
+* Added combination logic to seamlessly merge the PWM outputs: `motor_percent = (dist_motor_percent > post_motor_percent) ? dist_motor_percent : post_motor_percent;`.
+* Mapped the `recalibrate_sensors()` function (which resets the IMU zero-angle offset and restarts the ToF sensor via XSHUT) to the existing button integrated onto our custom PCB.
+
+---
+
+## Date: 2026-04-24
+
+### Objective
+Design the initial 3D unibody enclosure for the headband.
+
+### Record
+* Modeled the first iteration (V1) of the 3D unibody enclosure in CAD. 
+* Designed the internal layout based on the original PCB dimensions, including a small window for the ToF sensor and a centered mounting point for the elastic headband strap.
+* Exported the STL files and sent them to the 3D printer for overnight fabrication.
+
+---
+
+## Date: 2026-04-25
+
+### Objective
+Evaluate the V1 3D print and identify mechanical interference issues.
+
+### Record
+* Collected the V1 3D print from the lab. Attempted to fit the electronics (PCB and battery) into the enclosure.
+* **Problem:** The enclosure is too small. Because we pivoted to using a protoboard with breakout boards for the sensors (due to the fried SMD sensors on the main PCB), the internal volume required is significantly larger than the original CAD model accounted for.
+* Observed that the ToF sensor window was also slightly misaligned with the breakout board's laser orientation.
+
+---
+
+## Date: 2026-04-26
+
+### Objective
+Iterate and redesign the 3D enclosure (CAD V2) to accommodate the hardware pivot.
+
+### Record
+* Redesigned the enclosure (V2) to expand the internal cavity, specifically adding depth to allow for the stacked protoboard and the 3.7V LiPo battery.
+* Repositioned the external port alignments for the USB-C charging port and the buzzer acoustic grill. 
+* Significantly expanded the ToF sensor window to ensure the laser had an unobstructed field of view despite the bulky breakout board mounting. Sent V2 to the printer.
+
+---
+
+## Date: 2026-04-27
+
+### Objective
+Conduct physical design verification testing on the final hardware prior to the Final Demo.
+
+### Record
+* Performed physical accuracy testing on the VL53L0X Time-of-Flight sensor. Set up a test station using a ruler to place the headband at exact, known distances from a monitor (e.g., 10, 12, 15, and 20 inches) and recorded the sensor's serial output to verify our ±0.5 inch accuracy requirement.
+* Performed physical angle verification on the ICM-42670-P IMU. Used a protractor to physically tilt the headband to specific angles and cross-referenced the true physical angle against the calculated pitch output from the `atan2` firmware function.
+
+---
+
+## Date: 2026-04-28
+
+### Objective
+Finalize system assembly and present the Final Demo.
+
+### Record
+* Assembled the main PCB, the secondary sensor protoboard, the battery, and all feedback components into the V2 3D-printed enclosure.
+* Verified that the onboard calibration button successfully resets the posture baseline when worn on the head, and confirmed that both independent state machines trigger the progressive PWM motor correctly.
+* Successfully presented the Final Demo. The headband accurately monitored posture and distance simultaneously without dropping the local Wi-Fi connection.
 
 ---
